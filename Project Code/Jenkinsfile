@@ -1,0 +1,48 @@
+pipeline {
+    agent {
+        label 'linux'    
+        }
+    stages {
+        stage('Clone') {
+            steps {
+                dir ('/media/') {
+                sh "sudo rm -rf *"
+                sh "git clone https://github.com/akshatb1111/Restaurant-Billing-Management-system.git"
+                                }
+                  }
+                       }
+        stage('Build') {
+            steps {
+            dir ('/media/Restaurant-Billing-Management-system/Project Code') {
+                sh "mvn clean install"
+                                                                             }
+                  }
+
+           }
+        stage('Apache configure') {
+            steps {
+            dir ('/mnt/') {
+            sh "sudo rm -rf *"
+            sh "sudo wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.90/bin/apache-tomcat-9.0.90.zip"
+            sh "sudo unzip apache-tomcat-9.0.90.zip"
+                          }
+                  }
+                                  }
+        
+        stage('setting up war file') {
+            steps {
+            dir('/media/Restaurant-Billing-Management-system/Project Code/target/') {
+            sh "mv RestaurantBilling.war /mnt/apache-tomcat-9.0.90/webapps/"
+                                                                                    }
+                  }
+                                     }
+        stage('Starting tomcat') {
+            steps {
+            dir ('/mnt/apache-tomcat-9.0.90/bin/') {
+            sh "sudo chmod 777 *"
+            sh "./startup.sh"
+                                                   }
+                  }
+                                 }                             
+    }
+}
