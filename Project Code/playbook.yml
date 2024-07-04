@@ -1,0 +1,32 @@
+--- #MyFirstPlaybook
+- hosts: app
+  user: ansible
+  become: yes
+  connection: ssh
+  gather_facts: yes
+  tasks:
+    - name: installing apps
+      yum:
+        name: "{{ item }}"
+        state: installed
+      with_items:
+        - git
+        - maven
+        - java-17-amazon-corretto-jmods.x86_64
+
+    - name: downloading jenkins agent
+      command: curl -sO http://15.206.167.124:8080/jnlpJars/agent.jar
+
+    - name: activating jenkins agent on slave1
+      command: java -jar agent.jar -url http://15.206.167.124:8080/ -secret 54b4ff4da448154eb8d1ece190edf7ba8f073cdb1f192d6ac1d9d6df696ebf7e -name slave1 -workDir "/jenkinshome/"            
+      async: 30
+      poll: 0
+      when: ansible_default_ipv4.address == "172.31.37.182"
+
+    - name: activating jenkins agent on slave2
+      command: java -jar agent.jar -url http://15.206.167.124:8080/ -secret c39a7a4158044f27050ef41f43c32e724f7a09ecdae31af6d081907ecbe4f7e0 -name slave2 -workDir "/jenkinshome/"
+      async: 30
+      poll: 0
+      when: ansible_default_ipv4.address == "172.31.41.244"
+...      
+
